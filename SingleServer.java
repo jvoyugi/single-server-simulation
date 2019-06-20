@@ -3,9 +3,10 @@ import java.io.IOException;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.Scanner;
+import java.io.File;
 
 public class SingleServer {
-    private static int Q_LIMIT = 1000;
+    private static int Q_LIMIT = 100;
     private static int BUSY = 1;
     private static int IDLE = 0;
     private static int next_event_type;
@@ -32,29 +33,27 @@ public class SingleServer {
         mean_service = sc.nextDouble();
         num_delays_required = sc.nextInt();
         sc.close();
-        FileWriter file = new FileWriter("mm1.out", true);
-        PrintWriter outfile = new PrintWriter(file);
-        outfile.println("Single-server queuing system\n\n");
-        outfile.println("Mean interarrival " + mean_interarrival + " minutes\n\n");
-        outfile.println("Number of customers " + num_delays_required + "\n\n");
+        PrintWriter outfile = new PrintWriter("mm1.out");
+        outfile.printf("Single-server queuing system\n\n");
+        outfile.printf("Mean interarrival %11.3f  minutes\n\n", mean_interarrival);
+        outfile.printf("Number of customers %8d \n\n ", num_delays_required);
+        outfile.close();
         initialise();
-        System.out.print(mean_service);
         while (num_custs_delayed < num_delays_required) {
             timing();
             update_time_avg_stats();
-
             switch (next_event_type) {
             case 1:
                 arrive();
                 break;
             case 2:
                 depart();
+                System.out.println(num_custs_delayed + "   " + num_delays_required);
                 break;
             }
+
         }
         report();
-        sc.close();
-        outfile.close();
     }
 
     public static void initialise() {
@@ -66,7 +65,7 @@ public class SingleServer {
         total_of_delays = 0.0;
         area_num_in_q = 0.0;
         area_server_status = 0.0;
-        time_next_event[1] = time + Math.exp(mean_interarrival);
+        time_next_event[1] = time + expon(mean_interarrival);
         time_next_event[2] = 1.0e+30;
     }
 
@@ -83,7 +82,7 @@ public class SingleServer {
             }
         }
         if (next_event_type == 0) {
-            outfile.println("\nEvent list is empty at time" + time);
+            outfile.printf("\nEvent list is empty at time %f", time);
             outfile.close();
             System.exit(1);
         }
@@ -92,13 +91,13 @@ public class SingleServer {
 
     public static void arrive() throws FileNotFoundException, IOException {
         double delay;
-        time_next_event[1] = time + Math.exp(mean_interarrival);
+        time_next_event[1] = time + expon(mean_interarrival);
         FileWriter file = new FileWriter("mm1.out", true);
         PrintWriter outfile = new PrintWriter(file);
         if (server_status == BUSY) {
             ++num_in_q;
             if (num_in_q > Q_LIMIT) {
-                outfile.println("\nOverflow of the array time_arrival at time " + time);
+                outfile.printf("\nOverflow of the array time_arrival at time %f", time);
                 outfile.close();
                 System.exit(2);
             }
@@ -108,22 +107,23 @@ public class SingleServer {
             total_of_delays += delay;
             ++num_custs_delayed;
             server_status = BUSY;
-            time_next_event[2] = time + Math.exp(mean_service);
+            time_next_event[2] = time + expon(mean_service);
         }
     }
 
-    public static void depart() throws FileNotFoundException, IOException {
+    public static void depart() {
         int i;
         double delay;
         if (num_in_q == 0) {
             server_status = IDLE;
             time_next_event[2] = 1.0e+30;
         } else {
+            server_status = BUSY;
             --num_in_q;
             delay = time - time_arrival[1];
             total_of_delays += delay;
             ++num_custs_delayed;
-            time_next_event[2] = time + Math.exp(mean_service);
+            time_next_event[2] = time + expon(mean_service);
             for (i = 1; i <= num_in_q; ++i) {
                 time_arrival[i] = time_arrival[i + 1];
             }
@@ -133,10 +133,10 @@ public class SingleServer {
     public static void report() throws FileNotFoundException, IOException {
         FileWriter file = new FileWriter("mm1.out", true);
         PrintWriter outfile = new PrintWriter(file);
-        outfile.println("\n\nAverage delay in queue " + total_of_delays / num_custs_delayed + " minutes\n");
-        outfile.println("Average number in queue " + area_num_in_q / time + "\n");
-        outfile.println("Server utilization " + area_server_status / time + "\n");
-        outfile.println("Time simulation ended " + time + "\n");
+        outfile.printf("\n\nAverage delay in queue %11.3f minutes\n", total_of_delays / num_custs_delayed);
+        outfile.printf("Average number in queue %10.3f\n", area_num_in_q / time);
+        outfile.printf("Server utilization %15.3f\n\n", area_server_status / time);
+        outfile.printf("Time simulation ended %12.3f", time);
         outfile.close();
     }
 
@@ -146,5 +146,9 @@ public class SingleServer {
         time_last_event = time;
         area_num_in_q += num_in_q * time_since_last_event;
         area_server_status += server_status * time_since_last_event;
+    }
+
+    public static double expon(double mean) {
+        return -mean * Math.log(Math.random());
     }
 }
