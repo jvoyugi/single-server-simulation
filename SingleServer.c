@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
 #define Q_LIMIT 100
 #define BUSY 1
 #define IDLE 0
 int next_event_type, num_custs_delayed, num_delays_required,
     num_events, num_in_q, server_status;
 float area_num_in_q, area_server_status, mean_interarrival,
-    mean_service, time, time_arrival[Q_LIMIT + 1],
-    time_last_event, time_next_event[3], total_of_delays;
+      mean_service, time, time_arrival[Q_LIMIT + 1],
+      time_last_event, time_next_event[3], total_of_delays;
 FILE *infile, *outfile;
 void initialize(void);
 void timing(void);
@@ -17,15 +18,15 @@ void report(void);
 void update_time_avg_stats(void);
 float expon(float mean);
 
-main()
+int main()
 {
     infile = fopen("mm1.in", "r");
     outfile = fopen("mm1.out", "w");
     fscanf(infile, "%f %f %d", &mean_interarrival, &mean_service, &num_delays_required);
-    fprintf(outfile, "Single-server queuing system/n/n");
-    fprintf(outfile, "Mean inter-arrival time%1l.3f minutes/n/n", mean_interarrival);
-    fprintf(outfile, "Mean service time%16.3f minutes/n/n", mean_service);
-    fprintf(outfile, "Number of customers%14d/n/n", num_delays_required);
+    fprintf(outfile, "Single-server queuing system \n\n");
+    fprintf(outfile, "Mean interarrival %11.3f  minutes\n\n", mean_interarrival);
+    fprintf(outfile, "Mean service time %16.3f minutes\n\n", mean_service);
+    fprintf(outfile, "Number of customers %14d\n\n", num_delays_required);
     initialize();
     while (num_custs_delayed < num_delays_required)
     {
@@ -39,12 +40,12 @@ main()
         case 2:
             depart();
             break;
-            report();
-            fclose(infile);
-            fclose(outfile);
-            return 0;
         }
     }
+    report();
+    fclose(infile);
+    fclose(outfile);
+    return 0;
 }
 void initialize(void)
 {
@@ -63,7 +64,7 @@ void initialize(void)
     time_next_event[1] = time + expon(mean_interarrival);
     time_next_event[2] = 1.0e+30;
 }
-void timing(void) /* Timing function. */
+void timing(void) 
 {
     int i;
     float min_time_next_event = 1.0e+29;
@@ -114,7 +115,7 @@ void arrive(void)
         time_next_event[2] = time + expon(mean_service);
     }
 }
-void depart(void) /* Departure event function. */
+void depart(void)
 {
     int i;
     float delay;
@@ -138,7 +139,7 @@ void depart(void) /* Departure event function. */
 void report(void)
 {
     fprintf(outfile, "\n\nAverage delay in queue%11.3f minutes\n\n", total_of_delays / num_custs_delayed);
-    fprintf(outfile, "Average number in queue%lO.3f\n\n", area_num_in_q / time);
+    fprintf(outfile, "Average number in queue%10.3f\n\n", area_num_in_q / time);
     fprintf(outfile, "Server utilization%15.3f\n\n", area_server_status / time);
     fprintf(outfile, "Time simulation ended%12.3f", time);
 }
@@ -153,6 +154,6 @@ void update_time_avg_stats(void)
 float expon(float mean)
 {
     float u;
-    u = rand(1);
+    u = rand();
     return -mean * log(u);
 }

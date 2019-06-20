@@ -71,7 +71,7 @@ public class SingleServer {
 
     public static void timing() throws FileNotFoundException, IOException {
         int i;
-        double min_time_next_event = 1.0e+30;
+        double min_time_next_event = 1.0e+29;
         next_event_type = 0;
         FileWriter file = new FileWriter("mm1.out", true);
         PrintWriter outfile = new PrintWriter(file);
