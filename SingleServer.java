@@ -28,11 +28,12 @@ public class SingleServer {
 
     public static void main(String args[]) throws FileNotFoundException, IOException {
         num_events = 2;
-        Scanner sc = new Scanner(infile);
-        mean_interarrival = sc.nextDouble();
-        mean_service = sc.nextDouble();
-        num_delays_required = sc.nextInt();
-        sc.close();
+
+        try (Scanner sc = new Scanner(infile)) {
+            mean_interarrival = sc.nextDouble();
+            mean_service = sc.nextDouble();
+            num_delays_required = sc.nextInt();
+        }
         PrintWriter outfile = new PrintWriter("mm1.out");
         outfile.printf("Single-server queuing system\n\n");
         outfile.printf("Mean interarrival %11.3f  minutes\n\n", mean_interarrival);
@@ -48,7 +49,6 @@ public class SingleServer {
                 break;
             case 2:
                 depart();
-                System.out.println(num_custs_delayed + "   " + num_delays_required);
                 break;
             }
 
