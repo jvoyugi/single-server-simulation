@@ -6,9 +6,9 @@ import java.util.Scanner;
 import java.io.File;
 
 public class SingleServer {
-    private static int Q_LIMIT = 100;
-    private static int BUSY = 1;
-    private static int IDLE = 0;
+    private static final int Q_LIMIT = 100;
+    private static final int BUSY = 1;
+    private static final  int IDLE = 0;
     private static int next_event_type;
     private static int num_custs_delayed;
     private static int num_delays_required;
@@ -28,7 +28,6 @@ public class SingleServer {
 
     public static void main(String args[]) throws FileNotFoundException, IOException {
         num_events = 2;
-
         try (Scanner sc = new Scanner(infile)) {
             mean_interarrival = sc.nextDouble();
             mean_service = sc.nextDouble();
