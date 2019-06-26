@@ -94,7 +94,7 @@ public class SingleServer {
         FileWriter file = new FileWriter("mm1.out", true);
         PrintWriter outfile = new PrintWriter(file);
         if (server_status == BUSY) {
-            ++num_in_q;
+            num_in_q++;
             if (num_in_q > Q_LIMIT) {
                 outfile.printf("\nOverflow of the array time_arrival at time %f", time);
                 outfile.close();
